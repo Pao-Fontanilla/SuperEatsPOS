@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Eats</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- START NAVBAR -->
+    <nav class="text-light navbar navbar-expand-lg">
+      <div class="container-fluid">
+        <a class="navbar-brand text-light" href="index.html">SuperEats</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link text-light" href="menu.html">Menu</a>
+            </li>
+          </ul>
+          <!--<form class="d-flex" role="search">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+          </form>-->
+        </div>
+      </div>
+    </nav>
+    <!-- END NAVBAR -->
+    
+    <div class="container">
+        <!-- STARTS HERE -->
+        <div class="row">
+
+          <div class="mt-3 col-8">
+          <div class="card">
+
+            <div class="card-header bg-warning text-dark"><h2>Welcome to The Super Eats Food Menu!</h2></div>
+            
+            <div class="row row-cols-1 row-cols-md-4" id="menuItems">
+              <!-- Menu items will be dynamically added here -->
+            </div>
+
+          </div>
+          </div>
+
+        <div class="mt-3 col-3">
+        <div class="card">
+          <div class="card-header bg-info text-white"><h2>Ordered Items</h2></div>
+          <div class="card-body" id="orderedItems">
+            <!-- Ordered items will be displayed here -->
+            <div>
+              Total: <span id="totalPrice">0</span> PHP
+            </div>
+          </div>
+          <div class="card-footer">
+            <div>
+              <input class="form-control" type="number" id="cash" min="0" placeholder="Enter Cash">
+            </div>
+            <br><button id="payButton" class="btn btn-success">Pay!</button>
+          </div>
+        </div>
+        </div>
+      </div>
+        
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="mt-3 col-8" id="receipt"></div>
+      </div>
+    </div>
+
+</body>
+<script>
+  // Define menu items
+  const menuItems = [
+    { name: "Super Burger", price: 80, image: "burger.png" },
+    { name: "Super Fries", price: 50, image: "fries.png" },
+    { name: "Super Chicken", price: 100, image: "chicken.png" },
+    { name: "Super Oreo Brownies", price: 70, image: "oreo.png" },
+    { name: "Super Mallow Cupcake", price: 30, image: "marshmallow.png" },
+    { name: "Super Donut Cookies", price: 40, image: "donut.png" },
+    { name: "Super Vanilla Shake", price: 60, image: "vanilla.png" },
+    { name: "Super Choco Shake", price: 60, image: "choco.png" }
+  ];
+
+  // Function to add item to cart
+  let cart = [];
+function addToCart(name, price) {
+  const quantity = parseInt(document.getElementById(`quantity_${name}`).value) || 0;
+  if (quantity > 0) {
+    const item = { name, price, quantity };
+    cart.push(item);
+    updateOrderedItems();
+  }
+}
+
+// Function to update ordered items
+function updateOrderedItems() {
+  const orderedItemsContainer = document.getElementById("orderedItems");
+  orderedItemsContainer.innerHTML = "";
+
+  cart.forEach(item => {
+    const itemCard = document.createElement("div");
+    itemCard.classList.add("card", "mb-2"); // Add card styling and margin
+
+    itemCard.innerHTML = `
+      <div class="card-body">
+        <h5 class="card-title">${item.name}</h5>
+        <p class="card-text">
+          ${item.quantity} x ${item.price} PHP = ${item.price * item.quantity} PHP
+        </p>
+      </div>
+    `;
+
+    orderedItemsContainer.appendChild(itemCard);
+  });
+}
+
+  // Function to process payment
+  function pay() {
+  console.log("Processing payment...");
+  const cashInput = document.getElementById("cash");
+  const cash = parseFloat(cashInput.value);
+
+  console.log("Cash input value:", cashInput.value);
+  console.log("Parsed cash value:", cash);
+
+  let totalPrice = 0;
+
+  // Get all quantities
+  const quantities = document.querySelectorAll('.form-control[type="number"]');
+
+  // Prices in the same order as menu items
+  const prices = [80, 50, 100, 70, 30, 40, 60, 60, 0]; // Add a placeholder price for the missing menu item
+
+  console.log("Quantities:", quantities);
+
+  // Calculate total price
+  for (let i = 0; i < quantities.length; i++) {
+    const quantity = parseInt(quantities[i].value || 0);
+    console.log(`Quantity ${i}:`, quantity);
+    totalPrice += quantity * prices[i];
+  }
+
+  console.log("Total Price:", totalPrice);
+
+  // Compare cash and total price
+  console.log("Cash:", cash);
+  console.log("Total Price:", totalPrice);
+
+  // Check if cash is sufficient
+  if (cash >= totalPrice) {
+    const change = cash - totalPrice;
+    alert(`Thanks for ordering! Here's your ${change.toFixed(2)} pesos change.`);
+  } else {
+    alert("Insufficient cash!");
+  }
+}
+
+  // Add event listener to Pay button
+  document.getElementById('payButton').addEventListener('click', pay);
+
+  // Function to display receipt
+  function displayReceipt() {
+    const receiptContainer = document.getElementById("receipt");
+    const receiptDiv = document.createElement("div");
+    receiptDiv.innerHTML = "<h2>Receipt</h2>";
+    cart.forEach(item => {
+      receiptDiv.innerHTML += `${item.name} - ${item.price} PHP x ${item.quantity} = ${item.price * item.quantity} PHP<br>`;
+    });
+    receiptContainer.appendChild(receiptDiv);
+  }
+
+  // Populate menu items
+  const menuContainer = document.getElementById("menuItems");
+  menuItems.forEach(item => {
+    const card = document.createElement("div");
+    card.classList.add("col");
+    card.innerHTML = `
+      <div class="card mt-4">
+        <img src="${item.image}" class="card-img-top" alt="food" height="250px">
+        <div class="card-body">
+          ${item.name}
+          <p class="card-text">${item.price} PHP</p>
+          <div>
+            <input class="form-control" type="number" id="quantity_${item.name}" min="0">
+          </div>
+          <br><button class="btn btn-success addToCartBtn" data-name="${item.name}" data-price="${item.price}">Add to order</button>
+        </div>
+      </div>
+    `;
+    menuContainer.appendChild(card);
+  });
+
+  // Add event listener to dynamically added buttons
+  document.querySelectorAll('.addToCartBtn').forEach(button => {
+    button.addEventListener('click', function() {
+      const name = this.dataset.name;
+      const price = parseFloat(this.dataset.price);
+      addToCart(name, price);
+    });
+  });
+
+  // Add event listener to Pay button
+  document.getElementById('payButton').addEventListener('click', pay);
+</script>
+
+<footer>
+  <br><center>Copyright &copy; 2024 SuperEats, Inc.</center>
+</footer>
+
+</html>
